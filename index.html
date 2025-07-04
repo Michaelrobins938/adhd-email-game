@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +30,351 @@
             overflow: hidden;
         }
 
-        /* Enhanced HUD */
+        /* Narrator Entry Screen */
+        .narrator-entry {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000 0%, #1a0033 50%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            transition: opacity 2s ease-out;
+        }
+
+        .narrator-entry.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cosmic-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, 
+                rgba(75, 0, 130, 0.3) 0%, 
+                rgba(25, 25, 112, 0.2) 35%, 
+                rgba(0, 0, 0, 0.9) 70%,
+                #000 100%);
+            animation: cosmicShift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes cosmicShift {
+            0% { 
+                background: radial-gradient(ellipse at center, 
+                    rgba(75, 0, 130, 0.3) 0%, 
+                    rgba(25, 25, 112, 0.2) 35%, 
+                    rgba(0, 0, 0, 0.9) 70%,
+                    #000 100%);
+            }
+            50% {
+                background: radial-gradient(ellipse at center, 
+                    rgba(147, 0, 211, 0.2) 0%, 
+                    rgba(72, 61, 139, 0.3) 35%, 
+                    rgba(25, 25, 112, 0.1) 70%,
+                    #000 100%);
+            }
+            100% { 
+                background: radial-gradient(ellipse at center, 
+                    rgba(199, 21, 133, 0.2) 0%, 
+                    rgba(138, 43, 226, 0.1) 35%, 
+                    rgba(0, 0, 0, 0.9) 70%,
+                    #000 100%);
+            }
+        }
+
+        .email-crystal {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255, 255, 255, 0.8) 0%,
+                rgba(102, 126, 234, 0.6) 30%,
+                rgba(55, 66, 250, 0.4) 60%,
+                rgba(25, 25, 112, 0.8) 100%);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 50px rgba(102, 126, 234, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.2);
+            animation: crystalPulse 3s ease-in-out infinite, crystalFloat 4s ease-in-out infinite;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .email-crystal::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 30%;
+            height: 30%;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            filter: blur(8px);
+            animation: sparkle 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes crystalPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 50px rgba(102, 126, 234, 0.8),
+                    inset 0 0 30px rgba(255, 255, 255, 0.2);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 80px rgba(102, 126, 234, 1),
+                    0 0 120px rgba(255, 71, 87, 0.6),
+                    inset 0 0 40px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        @keyframes crystalFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0.4; transform: scale(0.8); }
+            100% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        .narrator-text {
+            color: #E6E6FA;
+            text-align: center;
+            font-size: 28px;
+            text-shadow: 0 0 20px rgba(230, 230, 250, 0.5);
+            margin-bottom: 20px;
+            animation: textGlow 2s ease-in-out infinite alternate;
+            font-weight: 600;
+        }
+
+        .narrator-subtitle {
+            color: rgba(230, 230, 250, 0.8);
+            text-align: center;
+            font-size: 18px;
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(230, 230, 250, 0.3);
+            margin-bottom: 30px;
+            animation: fadeInOut 3s ease-in-out infinite;
+            max-width: 600px;
+            line-height: 1.4;
+            padding: 0 20px;
+        }
+
+        .click-prompt {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            text-align: center;
+            animation: pulseText 2s ease-in-out infinite;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 20px rgba(230, 230, 250, 0.5); }
+            100% { text-shadow: 0 0 30px rgba(230, 230, 250, 0.8), 0 0 40px rgba(102, 126, 234, 0.3); }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Mystical particles for entry screen */
+        .entry-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(102, 126, 234, 0.6);
+            border-radius: 50%;
+            animation: entryFloat 8s linear infinite;
+            box-shadow: 0 0 6px rgba(102, 126, 234, 0.8);
+        }
+
+        @keyframes entryFloat {
+            0% { 
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% { 
+                opacity: 1;
+                transform: translateY(90vh) translateX(10px) scale(1);
+            }
+            90% { 
+                opacity: 1;
+                transform: translateY(10vh) translateX(-10px) scale(1);
+            }
+            100% { 
+                transform: translateY(-10vh) translateX(20px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Player Orientation Modal */
+        .orientation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(15px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2500;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .orientation-content {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border: 3px solid rgba(102, 126, 234, 0.6);
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.6),
+                0 0 40px rgba(102, 126, 234, 0.3);
+            animation: modalPop 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .orientation-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+            border-radius: 25px;
+            z-index: -1;
+            animation: borderShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes borderShimmer {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .orientation-title {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            font-weight: 700;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .orientation-body {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            color: #ecf0f1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .quest-accept-btn {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-accept-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 71, 87, 0.6);
+        }
+
+        .quest-accept-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .quest-accept-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Mission Reminder Banner */
+        .mission-banner {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 193, 7, 0.8);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: #ffc107;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+            box-shadow: 
+                0 8px 25px rgba(0,0,0,0.4),
+                0 0 20px rgba(255, 193, 7, 0.3);
+            z-index: 1500;
+            animation: bannerSlideIn 0.5s ease-out;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+
+        .mission-banner.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes bannerSlideIn {
+            from { 
+                transform: translateX(-50%) translateY(100px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(-50%) translateY(0); 
+                opacity: 1; 
+            }
+        }
+
+        /* Mobile HUD with Toggle */
         .game-hud {
             position: fixed;
             top: 20px;
@@ -47,6 +392,39 @@
             font-size: 11px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .hud-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            width: 50px;
+            height: 50px;
+            color: white;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .hud-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.1);
+        }
+
+        .game-hud.mobile-collapsed {
+            transform: translateX(calc(100% + 20px));
+            opacity: 0;
+            pointer-events: none;
         }
 
         .stat-group {
@@ -138,7 +516,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -406,12 +784,63 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
+        .compose-area {
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .email-fields {
+            margin-bottom: 20px;
+        }
+
+        .email-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
         .field-label {
             width: 80px;
             font-weight: 700;
             color: #34495e;
             font-size: 0.95rem;
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .field-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            color: #2c3e50;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .email-body-container {
+            flex: 1;
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .email-body-container:focus-within {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
         }
 
         .typing-area {
@@ -754,13 +1183,23 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .hud-toggle {
+                display: flex !important;
+            }
+
             .game-hud {
-                top: 10px;
-                right: 10px;
+                top: 20px;
+                right: 20px;
                 gap: 10px;
                 padding: 12px 16px;
                 font-size: 10px;
                 min-width: 180px;
+            }
+
+            .game-hud.mobile-collapsed {
+                transform: translateX(calc(100% + 20px));
+                opacity: 0;
+                pointer-events: none;
             }
 
             .stat-bar {
@@ -788,21 +1227,32 @@
                 font-size: 0.95rem;
             }
 
-            .title-logo {
+            .narrator-text {
+                font-size: 24px;
+                padding: 0 20px;
+            }
+
+            .narrator-subtitle {
+                font-size: 16px;
+                padding: 0 20px;
+            }
+
+            .email-crystal {
+                width: 120px;
+                height: 120px;
                 font-size: 2.5rem;
             }
 
-            .subtitle {
-                font-size: 1.2rem;
+            .orientation-content {
+                padding: 35px;
+                margin: 20px;
             }
 
-            .game-description {
-                font-size: 1rem;
-                padding: 0 15px;
+            .orientation-title {
+                font-size: 1.8rem;
             }
 
-            .start-btn {
-                padding: 20px 35px;
+            .orientation-body {
                 font-size: 1.1rem;
             }
 
@@ -816,6 +1266,12 @@
                 right: 10px;
                 max-width: 280px;
                 font-size: 0.9rem;
+            }
+
+            .mission-banner {
+                bottom: 20px;
+                font-size: 1rem;
+                padding: 12px 25px;
             }
         }
 
@@ -834,11 +1290,54 @@
             .heart-rate {
                 font-size: 12px;
             }
+
+            .hud-toggle {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="game-viewport">
+        <!-- Narrator Entry Screen -->
+        <div class="narrator-entry" id="narratorEntry">
+            <div class="cosmic-bg"></div>
+            <div class="email-crystal" id="emailCrystal">📧</div>
+            <div class="narrator-text">The Email Odyssey Awaits</div>
+            <div class="narrator-subtitle">
+                You stand before the most feared challenge in modern existence: sending a single, professional email. 
+                Your ADHD brain has other plans.
+            </div>
+            <div class="click-prompt">✨ Click the crystal to begin your descent into chaos ✨</div>
+        </div>
+
+        <!-- Player Orientation Modal -->
+        <div class="orientation-modal" id="orientationModal">
+            <div class="orientation-content">
+                <h2 class="orientation-title">🎯 Your Quest</h2>
+                <div class="orientation-body">
+                    <p><strong>WHO YOU ARE:</strong> A beautifully chaotic human with ADHD trying to function in a neurotypical world.</p>
+                    
+                    <p><strong>YOUR MISSION:</strong> Send ONE (1) email to your colleague Sarah. That's it. Sounds simple, right?</p>
+                    
+                    <p><strong>THE REALITY:</strong> Your brain will suggest 47 different ways to procrastinate, have three existential crises, and spiral into email tone anxiety before you even type "Hi."</p>
+                    
+                    <p style="font-style: italic; color: #ffc107; margin-top: 20px;">
+                        "This email could determine the trajectory of your entire career, your social standing, and possibly the fate of humanity itself."<br>
+                        <small>— Your Anxiety, probably</small>
+                    </p>
+                </div>
+                <button class="quest-accept-btn" onclick="acceptQuest()">I Accept This Cursed Quest</button>
+            </div>
+        </div>
+
+        <!-- Mobile HUD Toggle -->
+        <div class="hud-toggle" id="hudToggle" onclick="toggleHUD()" style="display: none;">
+            📊
+        </div>
+
         <!-- Enhanced HUD -->
         <div class="game-hud" id="gameHud" style="display: none;">
             <div class="stat-group">
@@ -882,6 +1381,11 @@
                 <span class="heart-rate" id="heartRate">72</span>
                 <span style="font-size: 9px; opacity: 0.8;">BPM</span>
             </div>
+        </div>
+
+        <!-- Mission Reminder Banner -->
+        <div class="mission-banner" id="missionBanner" style="display: none;">
+            🎯 Objective: Send the damn email.
         </div>
 
         <!-- Title Screen -->
@@ -977,12 +1481,13 @@
             dopamine: 15,
             focus: 10,
             heartRate: 72,
-            stage: 'title',
+            stage: 'narrator',
             thoughtCount: 0,
             distractionCount: 0,
             drafts: 47,
             emailSent: false,
-            choicesVisible: false
+            choicesVisible: false,
+            hudCollapsed: false
         };
 
         let thoughtBubbles = [
@@ -1025,6 +1530,101 @@
             "🎨 Learn a new skill on YouTube",
             "🌤️ Check the weather for no reason"
         ];
+
+        // Initialize particles for narrator entry
+        function createEntryParticles() {
+            const narratorEntry = document.getElementById('narratorEntry');
+            
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'entry-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                narratorEntry.appendChild(particle);
+            }
+        }
+
+        // Mobile HUD controls
+        function toggleHUD() {
+            const hud = document.getElementById('gameHud');
+            const toggle = document.getElementById('hudToggle');
+            
+            gameState.hudCollapsed = !gameState.hudCollapsed;
+            
+            if (gameState.hudCollapsed) {
+                hud.classList.add('mobile-collapsed');
+                toggle.textContent = '📊';
+                toggle.title = 'Show stats';
+            } else {
+                hud.classList.remove('mobile-collapsed');
+                toggle.textContent = '✖';
+                toggle.title = 'Hide stats';
+            }
+        }
+
+        // Check if mobile and auto-collapse HUD
+        function checkMobileHUD() {
+            if (window.innerWidth <= 768) {
+                gameState.hudCollapsed = true;
+                const hud = document.getElementById('gameHud');
+                const toggle = document.getElementById('hudToggle');
+                hud.classList.add('mobile-collapsed');
+                toggle.style.display = 'flex';
+                toggle.textContent = '📊';
+            }
+        }
+
+        // Narrator entry interaction
+        function startNarratorExperience() {
+            const narratorEntry = document.getElementById('narratorEntry');
+            const orientationModal = document.getElementById('orientationModal');
+            
+            // Fade out narrator entry
+            narratorEntry.classList.add('fade-out');
+            
+            // Show orientation modal
+            setTimeout(() => {
+                narratorEntry.style.display = 'none';
+                orientationModal.style.display = 'flex';
+            }, 2000);
+        }
+
+        // Accept quest and start game
+        function acceptQuest() {
+            const orientationModal = document.getElementById('orientationModal');
+            const gameScreen = document.getElementById('gameScreen');
+            const gameHud = document.getElementById('gameHud');
+            const missionBanner = document.getElementById('missionBanner');
+            
+            // Hide orientation modal
+            orientationModal.style.display = 'none';
+            
+            // Show game elements
+            gameScreen.style.display = 'block';
+            gameHud.style.display = 'flex';
+            missionBanner.style.display = 'block';
+            
+            gameState.stage = 'writing';
+            
+            // Check mobile and setup HUD
+            checkMobileHUD();
+            
+            // Show mission banner and fade it out after 10 seconds
+            setTimeout(() => {
+                missionBanner.classList.add('fade-out');
+            }, 10000);
+            
+            // Show initial choices after a moment
+            setTimeout(() => {
+                showChoices();
+            }, 2000);
+            
+            // Start the chaos
+            setTimeout(spawnThoughtBubble, 3000);
+            setTimeout(spawnDistraction, 8000);
+            enableWriting();
+        }
 
         function updateStats() {
             // Update visual bars
@@ -1378,8 +1978,31 @@
             }, 4000);
         }
 
-        // Initialize
-        updateStats();
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            createEntryParticles();
+            updateStats();
+            
+            // Entry screen click handler
+            const narratorEntry = document.getElementById('narratorEntry');
+            const emailCrystal = document.getElementById('emailCrystal');
+            
+            // Add click handlers
+            narratorEntry.addEventListener('click', startNarratorExperience);
+            emailCrystal.addEventListener('click', function(e) {
+                e.stopPropagation();
+                startNarratorExperience();
+            });
+            
+            // Add touch handlers for mobile
+            narratorEntry.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                startNarratorExperience();
+            });
+            
+            // Window resize handler for mobile HUD
+            window.addEventListener('resize', checkMobileHUD);
+        });
         
         // Random heart rate fluctuations
         setInterval(() => {
@@ -1400,3 +2023,4 @@
     </script>
 </body>
 </html>
+```
