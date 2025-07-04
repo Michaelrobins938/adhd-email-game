@@ -1165,7 +1165,7 @@
             100% { transform: rotate(360deg) scale(1); }
         }
 
-        /* Email Interface Improvements */
+        /* FIXED: Email Interface with proper mobile positioning */
         .email-workspace {
             position: absolute;
             top: 50%;
@@ -1173,7 +1173,7 @@
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 850px;
-            height: 80vh;
+            height: 85vh; /* Increased height for mobile */
             background: rgba(255,255,255,0.98);
             backdrop-filter: blur(20px);
             border-radius: 25px;
@@ -1183,6 +1183,8 @@
             color: #2c3e50;
             overflow: hidden;
             border: 2px solid rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
         }
 
         .email-header {
@@ -1193,6 +1195,7 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
 
         .header-title {
@@ -1212,14 +1215,16 @@
         }
 
         .compose-area {
-            height: calc(100% - 80px);
+            flex: 1;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            overflow: hidden;
         }
 
         .email-fields {
             margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         .email-field {
@@ -1235,6 +1240,7 @@
             color: #34495e;
             font-size: 0.95rem;
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
 
         .field-input {
@@ -1255,6 +1261,7 @@
             box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
         }
 
+        /* FIXED: Email body container with proper button positioning */
         .email-body-container {
             flex: 1;
             position: relative;
@@ -1262,6 +1269,9 @@
             border-radius: 15px;
             background: #f8f9fa;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 200px;
         }
 
         .email-body-container:focus-within {
@@ -1272,7 +1282,7 @@
 
         .typing-area {
             width: 100%;
-            height: 100%;
+            flex: 1;
             border: none;
             outline: none;
             font-family: 'Inter', sans-serif;
@@ -1281,8 +1291,8 @@
             resize: none;
             background: transparent;
             padding: 15px;
-            border-radius: 10px;
-            transition: background 0.2s ease;
+            padding-bottom: 80px; /* Space for send button */
+            border-radius: 15px;
             color: #2c3e50;
             text-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
@@ -1293,10 +1303,11 @@
             text-shadow: none;
         }
 
+        /* FIXED: Send button positioning - now relative to email-body-container */
         .send-button {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 15px;
+            right: 15px;
             background: linear-gradient(45deg, #ff4757, #ff3838);
             color: white;
             border: none;
@@ -1307,8 +1318,9 @@
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
-            position: relative;
-            overflow: hidden;
+            z-index: 10;
+            min-width: 140px;
+            text-align: center;
         }
 
         .send-button:hover:not(:disabled) {
@@ -1693,7 +1705,7 @@
             border-top: 2px solid #00ff00;
         }
 
-        /* Responsive Design */
+        /* MOBILE RESPONSIVE FIXES */
         @media (max-width: 768px) {
             .hud-toggle {
                 display: flex !important;
@@ -1723,10 +1735,71 @@
                 font-size: 14px;
             }
 
+            /* CRITICAL FIX: Mobile email workspace */
             .email-workspace {
                 width: 95%;
-                height: 85vh;
+                height: 90vh;
                 border-radius: 20px;
+                max-height: 90vh;
+            }
+
+            .email-header {
+                padding: 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-title {
+                font-size: 1.2rem;
+            }
+
+            .draft-info {
+                font-size: 0.75rem;
+            }
+
+            .compose-area {
+                padding: 15px;
+            }
+
+            .email-field {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .field-label {
+                width: auto;
+                font-size: 0.9rem;
+            }
+
+            .field-input {
+                width: 100%;
+                padding: 12px;
+                font-size: 1.1rem;
+            }
+
+            .email-body-container {
+                min-height: 250px;
+            }
+
+            .typing-area {
+                font-size: 1.1rem;
+                padding: 15px;
+                padding-bottom: 70px;
+            }
+
+            /* CRITICAL FIX: Mobile send button */
+            .send-button {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                width: calc(100% - 20px);
+                padding: 18px 20px;
+                font-size: 1.1rem;
+                font-weight: 700;
+                min-width: auto;
+                border-radius: 15px;
             }
 
             .choice-container {
@@ -1843,6 +1916,30 @@
 
             .mode-card {
                 padding: 20px;
+            }
+
+            /* Extra small mobile fixes */
+            .email-workspace {
+                height: 95vh;
+            }
+
+            .send-button {
+                font-size: 1rem;
+                padding: 16px;
+            }
+        }
+
+        /* Landscape mobile orientation */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .email-workspace {
+                height: 95vh;
+                width: 98%;
+            }
+
+            .mission-banner {
+                bottom: 10px;
+                font-size: 0.9rem;
+                padding: 8px 15px;
             }
         }
 
@@ -3036,6 +3133,7 @@
                 <li>Distractions give dopamine but hurt focus</li>
                 <li>Different game modes offer different challenges</li>
                 <li>Your progress auto-saves</li>
+                <li><strong>IMPORTANT:</strong> The send button appears at the bottom of the email when you write enough text (15+ characters)</li>
             </ul>
             <p><strong>Remember:</strong> This is a simulation. Real ADHD is complex and everyone's experience is different. This game is made with love for the neurodivergent community. 💙</p>
             `;
@@ -3429,10 +3527,20 @@
                 gameState.drafts++;
                 updateStats();
                 
+                // CRITICAL FIX: Enable send button when enough content
                 if (this.value.length > 15) {
                     sendButton.disabled = false;
+                    sendButton.style.display = 'block';
+                    sendButton.style.opacity = '1';
                     gameState.focus = Math.min(100, gameState.focus + 2);
                     gameState.dopamine = Math.min(100, gameState.dopamine + 1);
+                    
+                    // Show notification when send becomes available
+                    if (this.value.length === 16) {
+                        showNotification("📧 Send button is now available! You can complete your quest!");
+                        soundSystem.play('success');
+                        vibrateDevice([100, 50, 100]);
+                    }
                 } else {
                     sendButton.disabled = true;
                 }
