@@ -5,8 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The ADHD Email Odyssey: Interactive Chaos Simulator</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRoZSBBREhEIEVtYWlsIE9keXNzZXkiLAogICJzaG9ydF9uYW1lIjogIkVtYWlsIE9keXNzZXkiLAogICJkZXNjcmlwdGlvbiI6ICJBbiBpbnRlcmFjdGl2ZSBBRERESHN1cnZpdmFsIHNpbXVsYXRvciIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjBmMjMiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBeE9USkNNVGt5SWlCM2FXUjBhRDBpTVRreUlpQm9aV2xuYUhROUlqRTVNaUkrUEhSbGVIUWdlRDBpT1RZaUlIazlJalEwSWlCbWFXeHNQU0lqWkRZMllqSXhJaUJtYjI1MExYTnBlbVU5SWpNd0lpQjBaWGgwTFdGdVkyaHZjajBpYldsa1pHeGxJajQ4TDBSb1pHaGJQQzUwWlhoMFBnPT0iLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9CiAgXQp9">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiI+PHRleHQgeD0iOTYiIHk9IjQ0IiBmaWxsPSIjZDY2YjIxIiBmb250LXNpemU9IjMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5OnaFRoZWQ2YnBPC50ZXh0Pg==">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --danger-color: #ff4757;
+            --success-color: #2ed573;
+            --warning-color: #ffa502;
+            --info-color: #3742fa;
+            --dark-bg: #0f0f23;
+            --darker-bg: #1a1a2e;
+            --text-light: #ffffff;
+            --text-muted: rgba(255,255,255,0.7);
+            --glass-bg: rgba(255,255,255,0.1);
+            --glass-border: rgba(255,255,255,0.2);
+        }
         
         * {
             margin: 0;
@@ -16,11 +38,28 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 50%, #16213e 100%);
             min-height: 100vh;
             overflow-x: hidden;
-            color: white;
+            color: var(--text-light);
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+
+        body.high-contrast {
+            --primary-color: #ffffff;
+            --secondary-color: #ffffff;
+            --text-light: #ffffff;
+            --dark-bg: #000000;
+            --darker-bg: #000000;
+        }
+
+        body.high-contrast * {
+            border-color: #ffffff !important;
+            background: rgba(0,0,0,0.9) !important;
+            color: #ffffff !important;
         }
 
         .game-viewport {
@@ -28,6 +67,358 @@
             height: 100vh;
             position: relative;
             overflow: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            transition: opacity 1s ease-out;
+        }
+
+        .loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            animation: loadingPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .loading-progress {
+            width: 300px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        /* Error Modal */
+        .error-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 6000;
+        }
+
+        .error-content {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+        }
+
+        .settings-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 2px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+
+        .settings-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .setting-control {
+            flex: 0 0 auto;
+        }
+
+        .volume-slider {
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--glass-bg);
+            outline: none;
+            appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--glass-bg);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(30px);
+        }
+
+        /* Achievement System */
+        .achievement-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3000;
+            max-width: 300px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .achievement-notification.show {
+            transform: translateX(0);
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .achievement-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .achievement-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Achievements Panel */
+        .achievements-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 350px;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            border-left: 2px solid var(--glass-border);
+            padding: 20px;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 2000;
+        }
+
+        .achievements-panel.open {
+            right: 0;
+        }
+
+        .achievement-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .achievement-item.unlocked {
+            background: linear-gradient(45deg, rgba(46, 213, 115, 0.2), rgba(23, 162, 184, 0.2));
+            border-color: var(--success-color);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.5;
+        }
+
+        /* Game Mode Selection */
+        .mode-selection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+            padding: 40px 20px;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .mode-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .mode-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .mode-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .mode-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .mode-difficulty {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .mode-difficulty.easy {
+            background: rgba(46, 213, 115, 0.2);
+            color: var(--success-color);
+        }
+
+        .mode-difficulty.normal {
+            background: rgba(255, 165, 2, 0.2);
+            color: var(--warning-color);
+        }
+
+        .mode-difficulty.hard {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--danger-color);
+        }
+
+        .mode-difficulty.nightmare {
+            background: rgba(138, 43, 226, 0.2);
+            color: #8a2be2;
         }
 
         /* Narrator Entry Screen */
@@ -372,6 +763,42 @@
                 transform: translateX(-50%) translateY(0); 
                 opacity: 1; 
             }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--glass-border);
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
         }
 
         /* Mobile HUD with Toggle */
@@ -991,6 +1418,7 @@
             cursor: pointer;
             text-shadow: 0 1px 2px rgba(255,255,255,0.8);
             line-height: 1.4;
+            touch-action: manipulation;
         }
 
         .thought-bubble::after {
@@ -1003,6 +1431,14 @@
             border: 10px solid transparent;
             border-top-color: #ffd93d;
             filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+        }
+
+        .thought-bubble.swipe-dismiss {
+            animation: swipeOut 0.3s ease-out forwards;
+        }
+
+        @keyframes swipeOut {
+            to { transform: translateY(-100px); opacity: 0; }
         }
 
         .distraction {
@@ -1022,6 +1458,7 @@
             font-size: 1rem;
             text-shadow: 0 2px 6px rgba(0,0,0,0.6);
             border: 2px solid rgba(255,255,255,0.2);
+            touch-action: manipulation;
         }
 
         .distraction:hover {
@@ -1139,6 +1576,44 @@
             }
         }
 
+        /* Share Modal */
+        .share-modal {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 20px;
+            display: none;
+            z-index: 700;
+            backdrop-filter: blur(10px);
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .share-btn.twitter {
+            background: #1da1f2;
+            color: white;
+        }
+
+        .share-btn.copy {
+            background: var(--primary-color);
+            color: white;
+        }
+
         /* Final Scenes */
         .victory-screen {
             background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
@@ -1179,6 +1654,43 @@
             margin: 20px 0;
             font-family: 'JetBrains Mono', monospace;
             backdrop-filter: blur(10px);
+        }
+
+        /* Screen Reader Only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Accessibility Focus */
+        *:focus {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Easter Egg Console */
+        .debug-console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: rgba(0,0,0,0.95);
+            color: #00ff00;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 10px;
+            overflow-y: auto;
+            display: none;
+            z-index: 8000;
+            border-top: 2px solid #00ff00;
         }
 
         /* Responsive Design */
@@ -1273,6 +1785,33 @@
                 font-size: 1rem;
                 padding: 12px 25px;
             }
+
+            .mode-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px 0;
+            }
+
+            .control-panel {
+                top: 10px;
+                left: 10px;
+                gap: 5px;
+            }
+
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+
+            .achievements-panel {
+                width: 100vw;
+                right: -100vw;
+            }
+
+            .achievements-panel.open {
+                right: 0;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1296,11 +1835,185 @@
                 height: 45px;
                 font-size: 16px;
             }
+
+            .settings-content {
+                padding: 30px;
+                margin: 10px;
+            }
+
+            .mode-card {
+                padding: 20px;
+            }
+        }
+
+        /* Prefers Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
     <div class="game-viewport">
+        <!-- Loading Screen -->
+        <div class="loading-screen" id="loadingScreen">
+            <div class="loading-logo">📧</div>
+            <div class="loading-progress">
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+            <div class="loading-text" id="loadingText">Initializing chaos...</div>
+        </div>
+
+        <!-- Error Modal -->
+        <div class="error-modal" id="errorModal">
+            <div class="error-content">
+                <h2>🚨 Something Went Wrong</h2>
+                <p id="errorMessage">Don't worry, your progress is saved!</p>
+                <button class="quest-accept-btn" onclick="dismissError()">Continue Despite the Chaos</button>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="settings-modal" id="settingsModal">
+            <div class="settings-content">
+                <h2 class="settings-title">⚙️ Settings</h2>
+                
+                <div class="settings-section">
+                    <h3>Audio</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">Master Volume</label>
+                        <input type="range" class="volume-slider setting-control" id="masterVolume" min="0" max="100" value="50">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Sound Effects</label>
+                        <div class="toggle-switch setting-control" id="sfxToggle" onclick="toggleSetting('sfx')"></div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Background Music</label>
+                        <div class="toggle-switch setting-control" id="musicToggle" onclick="toggleSetting('music')"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Accessibility</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">High Contrast</label>
+                        <div class="toggle-switch setting-control" id="contrastToggle" onclick="toggleSetting('contrast')"></div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Reduce Motion</label>
+                        <div class="toggle-switch setting-control" id="motionToggle" onclick="toggleSetting('motion')"></div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Large Text</label>
+                        <div class="toggle-switch setting-control" id="textToggle" onclick="toggleSetting('text')"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Game</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">Haptic Feedback</label>
+                        <div class="toggle-switch setting-control active" id="hapticToggle" onclick="toggleSetting('haptic')"></div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Auto-Save</label>
+                        <div class="toggle-switch setting-control active" id="saveToggle" onclick="toggleSetting('autosave')"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <button class="quest-accept-btn" onclick="resetProgress()" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
+                        🗑️ Reset All Progress
+                    </button>
+                    <button class="quest-accept-btn" onclick="closeSettings()" style="margin-left: 10px;">
+                        ✅ Save & Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Notification -->
+        <div class="achievement-notification" id="achievementNotification">
+            <div class="achievement-icon">🏆</div>
+            <div class="achievement-title" id="achievementTitle">Achievement Unlocked!</div>
+            <div class="achievement-description" id="achievementDesc">You did something!</div>
+        </div>
+
+        <!-- Achievements Panel -->
+        <div class="achievements-panel" id="achievementsPanel">
+            <h2>🏆 Achievements</h2>
+            <div id="achievementsList"></div>
+        </div>
+
+        <!-- Share Modal -->
+        <div class="share-modal" id="shareModal">
+            <h3>Share Your Chaos!</h3>
+            <div class="share-buttons">
+                <button class="share-btn twitter" onclick="shareToTwitter()">🐦 Twitter</button>
+                <button class="share-btn copy" onclick="copyShareText()">📋 Copy</button>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-btn" id="settingsBtn" onclick="openSettings()" title="Settings">⚙️</div>
+            <div class="control-btn" id="achievementsBtn" onclick="toggleAchievements()" title="Achievements">🏆</div>
+            <div class="control-btn" id="soundBtn" onclick="toggleSound()" title="Toggle Sound">🔊</div>
+            <div class="control-btn" id="helpBtn" onclick="showHelp()" title="Help">❓</div>
+        </div>
+
+        <!-- Game Mode Selection -->
+        <div class="mode-selection" id="modeSelection">
+            <h1 style="text-align: center; margin-bottom: 40px; font-size: 2.5rem;">Choose Your Chaos Level</h1>
+            <div class="mode-grid">
+                <div class="mode-card" onclick="selectGameMode('easy')" data-mode="easy">
+                    <div class="mode-icon">😌</div>
+                    <div class="mode-title">Zen Mode</div>
+                    <div class="mode-description">Fewer distractions, more encouragement. Perfect for beginners or rough days.</div>
+                    <div class="mode-difficulty easy">Easy</div>
+                </div>
+
+                <div class="mode-card" onclick="selectGameMode('normal')" data-mode="normal">
+                    <div class="mode-icon">😅</div>
+                    <div class="mode-title">Classic Chaos</div>
+                    <div class="mode-description">The authentic ADHD email experience. Just the right amount of overwhelming.</div>
+                    <div class="mode-difficulty normal">Normal</div>
+                </div>
+
+                <div class="mode-card" onclick="selectGameMode('hard')" data-mode="hard">
+                    <div class="mode-icon">😰</div>
+                    <div class="mode-title">Executive Dysfunction</div>
+                    <div class="mode-description">Maximum distractions, time pressure, and existential dread. Good luck.</div>
+                    <div class="mode-difficulty hard">Hard</div>
+                </div>
+
+                <div class="mode-card" onclick="selectGameMode('nightmare')" data-mode="nightmare">
+                    <div class="mode-icon">💀</div>
+                    <div class="mode-title">Nightmare Mode</div>
+                    <div class="mode-description">For masochists only. Every possible distraction plus surprise anxiety attacks.</div>
+                    <div class="mode-difficulty nightmare">Nightmare</div>
+                </div>
+
+                <div class="mode-card" onclick="selectGameMode('daily')" data-mode="daily">
+                    <div class="mode-icon">📅</div>
+                    <div class="mode-title">Daily Challenge</div>
+                    <div class="mode-description">A new scenario every day. Today: Email your ex-boss about their LinkedIn post.</div>
+                    <div class="mode-difficulty normal">Challenge</div>
+                </div>
+
+                <div class="mode-card locked" data-mode="speedrun">
+                    <div class="mode-icon">⚡</div>
+                    <div class="mode-title">Speed Demon</div>
+                    <div class="mode-description">Send the email in under 2 minutes. Unlock by completing Normal mode.</div>
+                    <div class="mode-difficulty hard">Locked</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Narrator Entry Screen -->
         <div class="narrator-entry" id="narratorEntry">
             <div class="cosmic-bg"></div>
@@ -1388,23 +2101,8 @@
             🎯 Objective: Send the damn email.
         </div>
 
-        <!-- Title Screen -->
-        <div class="title-screen" id="titleScreen">
-            <h1 class="title-logo">📧 THE EMAIL ODYSSEY</h1>
-            <p class="subtitle">An Interactive ADHD Survival Simulator</p>
-            <div class="game-description">
-                Experience the epic journey of sending one (1) email when your brain runs on chaos energy. 
-                Navigate through executive dysfunction, anxiety spirals, and the occasional dissociative episode 
-                in this brutally accurate simulation of neurodivergent communication struggles.
-            </div>
-            <button class="start-btn" onclick="startGame()">
-                Begin the Madness
-            </button>
-            <div class="warning-text">
-                ⚠️ Warning: Contains realistic portrayals of executive dysfunction, existential email dread, 
-                and the occasional dissociative episode. Side effects may include feeling deeply seen and validated.
-            </div>
-        </div>
+        <!-- Screen Reader Announcements -->
+        <div aria-live="polite" aria-atomic="true" class="sr-only" id="srAnnouncements"></div>
 
         <!-- Game Screen -->
         <div class="game-screen" id="gameScreen">
@@ -1421,20 +2119,21 @@
                 <div class="compose-area">
                     <div class="email-fields">
                         <div class="email-field">
-                            <span class="field-label">To:</span>
-                            <input type="text" class="field-input" value="sarah@work.com" readonly>
+                            <label class="field-label" for="emailTo">To:</label>
+                            <input type="text" class="field-input" id="emailTo" value="sarah@work.com" readonly aria-label="Email recipient">
                         </div>
                         <div class="email-field">
-                            <span class="field-label">Subject:</span>
-                            <input type="text" class="field-input" id="subjectLine" placeholder="Following up on... the thing?">
+                            <label class="field-label" for="subjectLine">Subject:</label>
+                            <input type="text" class="field-input" id="subjectLine" placeholder="Following up on... the thing?" aria-label="Email subject">
                         </div>
                     </div>
                     
                     <div class="email-body-container">
+                        <label for="emailBody" class="sr-only">Email body</label>
                         <textarea class="typing-area" id="emailBody" placeholder="Hi Sarah, hope you're well...
 
-(Your cursor blinks mockingly as your brain suggests 47 different ways to start this email)"></textarea>
-                        <button class="send-button" id="sendButton" onclick="attemptSend()" disabled>
+(Your cursor blinks mockingly as your brain suggests 47 different ways to start this email)" aria-label="Email content"></textarea>
+                        <button class="send-button" id="sendButton" onclick="attemptSend()" disabled aria-label="Send email">
                             SEND (IF YOU DARE)
                         </button>
                     </div>
@@ -1443,16 +2142,16 @@
 
             <div class="choice-overlay" id="choiceOverlay">
                 <div class="choice-container" id="choiceContainer">
-                    <button class="choice-btn" onclick="makeChoice('overthink')">
+                    <button class="choice-btn" onclick="makeChoice('overthink')" aria-label="Overthink the greeting for 20 minutes">
                         🤔 Overthink the greeting for 20 minutes
                     </button>
-                    <button class="choice-btn" onclick="makeChoice('distract')">
+                    <button class="choice-btn" onclick="makeChoice('distract')" aria-label="Check social media quickly">
                         📱 Check social media "real quick"
                     </button>
-                    <button class="choice-btn" onclick="makeChoice('anxiety')">
+                    <button class="choice-btn" onclick="makeChoice('anxiety')" aria-label="Spiral about email tone">
                         🌀 Spiral about email tone
                     </button>
-                    <button class="choice-btn" onclick="makeChoice('brave')">
+                    <button class="choice-btn" onclick="makeChoice('brave')" aria-label="Actually try to write something">
                         💪 Actually try to write something
                     </button>
                 </div>
@@ -1461,7 +2160,7 @@
 
         <!-- Modal System -->
         <div class="modal-overlay" id="modalOverlay">
-            <div class="modal" id="modal">
+            <div class="modal" id="modal" role="dialog" aria-labelledby="modalTitle" aria-describedby="modalContent">
                 <h3 id="modalTitle">Anxiety Spiral Detected!</h3>
                 <div id="modalContent">
                     <div class="anxiety-spiral">🌀💭🌀</div>
@@ -1472,66 +2171,879 @@
                 </div>
             </div>
         </div>
+
+        <!-- Debug Console (Easter Egg) -->
+        <div class="debug-console" id="debugConsole">
+            <div id="consoleOutput">
+                > ADHD_EMAIL_ODYSSEY v2.0.0 initialized<br>
+                > Type 'help' for commands<br>
+                > 
+            </div>
+        </div>
     </div>
 
     <script>
+        // Global Game State
         let gameState = {
+            // Core stats
             anxiety: 20,
             procrastination: 85,
             dopamine: 15,
             focus: 10,
             heartRate: 72,
-            stage: 'narrator',
+            
+            // Game flow
+            stage: 'loading',
+            currentMode: 'normal',
             thoughtCount: 0,
             distractionCount: 0,
             drafts: 47,
             emailSent: false,
             choicesVisible: false,
-            hudCollapsed: false
+            hudCollapsed: false,
+            
+            // Settings
+            settings: {
+                masterVolume: 50,
+                sfxEnabled: true,
+                musicEnabled: true,
+                highContrast: false,
+                reducedMotion: false,
+                largeText: false,
+                hapticEnabled: true,
+                autoSave: true
+            },
+            
+            // Progress tracking
+            achievements: {},
+            stats: {
+                totalPlayTime: 0,
+                emailsSent: 0,
+                anxietyPeaks: 0,
+                distractionsClicked: 0,
+                thoughtsDismissed: 0,
+                modesCompleted: []
+            },
+            
+            // Current session
+            sessionStart: Date.now(),
+            lastSave: Date.now(),
+            scenario: null
         };
 
-        let thoughtBubbles = [
-            "Is 'Hi' too casual?",
-            "Should I say 'Dear Sarah'?", 
-            "What if she thinks I'm weird?",
-            "Maybe I should call instead?",
-            "Do I sound desperate?",
-            "Is this email even necessary?",
-            "What if I'm overthinking this?",
-            "I am definitely overthinking this",
-            "But what if I'm not overthinking enough?",
-            "Why is communication so hard?",
-            "Maybe I should just quit my job",
-            "Do I even remember what this is about?",
-            "What if Sarah forgot about me entirely?",
-            "I should probably Google proper email etiquette",
-            "Is there a way to send emails anonymously?",
-            "What would a neurotypical person do?",
-            "This is taking longer than my actual work",
-            "Maybe if I wait long enough the problem will solve itself",
-            "What if this email ruins everything?",
-            "Why didn't they teach email anxiety in school?"
+        // Content Systems
+        const contentSystems = {
+            // Base content
+            thoughtBubbles: [
+                "Is 'Hi' too casual?",
+                "Should I say 'Dear Sarah'?", 
+                "What if she thinks I'm weird?",
+                "Maybe I should call instead?",
+                "Do I sound desperate?",
+                "Is this email even necessary?",
+                "What if I'm overthinking this?",
+                "I am definitely overthinking this",
+                "But what if I'm not overthinking enough?",
+                "Why is communication so hard?",
+                "Maybe I should just quit my job",
+                "Do I even remember what this is about?",
+                "What if Sarah forgot about me entirely?",
+                "I should probably Google proper email etiquette",
+                "Is there a way to send emails anonymously?",
+                "What would a neurotypical person do?",
+                "This is taking longer than my actual work",
+                "Maybe if I wait long enough the problem will solve itself",
+                "What if this email ruins everything?",
+                "Why didn't they teach email anxiety in school?"
+            ],
+
+            distractions: [
+                "🎵 New song just dropped!",
+                "📱 Someone liked your post!",
+                "🍕 You should probably eat something",
+                "🧹 Your room is a disaster zone",
+                "📺 That show you're watching has a new episode",
+                "💸 Check if that thing you wanted is on sale",
+                "🌐 Wikipedia rabbit hole awaits",
+                "🎮 Quick game break?",
+                "☕ Coffee sounds good right now",
+                "📖 Remember that book you started?",
+                "🚿 You should probably shower",
+                "📞 Text someone back",
+                "🗂️ Organize your desktop",
+                "🎨 Learn a new skill on YouTube",
+                "🌤️ Check the weather for no reason"
+            ],
+
+            // Seasonal content
+            getSeasonalContent() {
+                const now = new Date();
+                const month = now.getMonth();
+                const day = now.getDate();
+                const dayOfWeek = now.getDay();
+                
+                let seasonal = [];
+                
+                // Holiday seasons
+                if (month === 11) { // December
+                    seasonal.push(
+                        "Should I send holiday cards?",
+                        "Year-end performance reviews...",
+                        "🎄 Holiday party planning stress"
+                    );
+                }
+                
+                if (month === 0) { // January
+                    seasonal.push(
+                        "New year, new me... right?",
+                        "Resolution to check email more often",
+                        "📅 Calendar anxiety intensifies"
+                    );
+                }
+                
+                // Day of week
+                if (dayOfWeek === 1) { // Monday
+                    seasonal.push(
+                        "Monday emails hit different",
+                        "Weekend warrior syndrome",
+                        "☕ Need more coffee for Monday"
+                    );
+                }
+                
+                if (dayOfWeek === 5) { // Friday
+                    seasonal.push(
+                        "Can this wait until Monday?",
+                        "Friday afternoon energy drop",
+                        "🍻 Weekend plans are calling"
+                    );
+                }
+                
+                return seasonal;
+            },
+
+            // Dynamic email scenarios
+            emailScenarios: {
+                'sarah-work': {
+                    to: 'sarah@work.com',
+                    context: 'project update',
+                    urgency: 'medium',
+                    relationship: 'colleague',
+                    pastInteractions: 'positive'
+                },
+                'mom-family': {
+                    to: 'mom@family.com',
+                    context: 'missed dinner',
+                    urgency: 'low',
+                    relationship: 'family',
+                    pastInteractions: 'guilt-inducing'
+                },
+                'boss-urgent': {
+                    to: 'boss@company.com',
+                    context: 'deadline extension',
+                    urgency: 'high',
+                    relationship: 'authority',
+                    pastInteractions: 'intimidating'
+                },
+                'landlord': {
+                    to: 'landlord@property.com',
+                    context: 'rent inquiry',
+                    urgency: 'high',
+                    relationship: 'professional',
+                    pastInteractions: 'formal'
+                },
+                'ex-colleague': {
+                    to: 'alex@oldcompany.com',
+                    context: 'networking',
+                    urgency: 'low',
+                    relationship: 'former',
+                    pastInteractions: 'awkward'
+                }
+            },
+
+            getCurrentScenario() {
+                const scenarios = Object.keys(this.emailScenarios);
+                if (gameState.currentMode === 'daily') {
+                    // Use date as seed for consistent daily scenario
+                    const today = new Date().toDateString();
+                    const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                    return scenarios[seed % scenarios.length];
+                }
+                return 'sarah-work'; // Default
+            }
+        };
+
+        // Achievement System
+        const achievementSystem = {
+            definitions: {
+                'first-email': {
+                    id: 'first-email',
+                    name: 'Email Warrior',
+                    description: 'Send your first email',
+                    icon: '📧',
+                    points: 100,
+                    secret: false,
+                    condition: () => gameState.stats.emailsSent >= 1
+                },
+                'anxiety-master': {
+                    id: 'anxiety-master',
+                    name: 'Chaos Navigator',
+                    description: 'Survive 10 anxiety peaks in one session',
+                    icon: '🌪️',
+                    points: 200,
+                    secret: false,
+                    condition: () => gameState.stats.anxietyPeaks >= 10
+                },
+                'speed-demon': {
+                    id: 'speed-demon',
+                    name: 'Lightning Fingers',
+                    description: 'Send an email in under 2 minutes',
+                    icon: '⚡',
+                    points: 300,
+                    secret: false,
+                    condition: () => gameState.sessionPlayTime < 120000 && gameState.emailSent
+                },
+                'procrastination-king': {
+                    id: 'procrastination-king',
+                    name: 'Master Procrastinator',
+                    description: 'Click 20 distractions in one session',
+                    icon: '👑',
+                    points: 150,
+                    secret: false,
+                    condition: () => gameState.stats.distractionsClicked >= 20
+                },
+                'perfectionist': {
+                    id: 'perfectionist',
+                    name: 'Draft Collector',
+                    description: 'Save 100 drafts',
+                    icon: '📝',
+                    points: 250,
+                    secret: false,
+                    condition: () => gameState.drafts >= 100
+                },
+                'zen-master': {
+                    id: 'zen-master',
+                    name: 'Inner Peace',
+                    description: 'Complete Zen Mode without anxiety going above 50',
+                    icon: '🧘',
+                    points: 400,
+                    secret: false,
+                    condition: () => gameState.currentMode === 'easy' && gameState.emailSent && gameState.stats.maxAnxiety <= 50
+                },
+                'nightmare-survivor': {
+                    id: 'nightmare-survivor',
+                    name: 'Chaos Lord',
+                    description: 'Complete Nightmare Mode',
+                    icon: '💀',
+                    points: 1000,
+                    secret: false,
+                    condition: () => gameState.currentMode === 'nightmare' && gameState.emailSent
+                },
+                'konami-code': {
+                    id: 'konami-code',
+                    name: 'Secret Agent',
+                    description: 'Found the secret developer console',
+                    icon: '🕵️',
+                    points: 500,
+                    secret: true,
+                    condition: () => gameState.konamiActivated
+                },
+                'thought-dismisser': {
+                    id: 'thought-dismisser',
+                    name: 'Mind Ninja',
+                    description: 'Dismiss 50 intrusive thoughts',
+                    icon: '🥷',
+                    points: 300,
+                    secret: false,
+                    condition: () => gameState.stats.thoughtsDismissed >= 50
+                },
+                'all-modes': {
+                    id: 'all-modes',
+                    name: 'Jack of All Chaos',
+                    description: 'Complete all game modes',
+                    icon: '🎭',
+                    points: 2000,
+                    secret: false,
+                    condition: () => ['easy', 'normal', 'hard', 'nightmare'].every(mode => 
+                        gameState.stats.modesCompleted.includes(mode))
+                }
+            },
+
+            check() {
+                for (const [id, achievement] of Object.entries(this.definitions)) {
+                    if (!gameState.achievements[id] && achievement.condition()) {
+                        this.unlock(id);
+                    }
+                }
+            },
+
+            unlock(achievementId) {
+                const achievement = this.definitions[achievementId];
+                if (!achievement || gameState.achievements[achievementId]) return;
+
+                gameState.achievements[achievementId] = {
+                    unlockedAt: Date.now(),
+                    points: achievement.points
+                };
+
+                this.showNotification(achievement);
+                soundSystem.play('achievement');
+                vibrateDevice([100, 50, 100]);
+                saveProgress();
+                this.updateDisplay();
+            },
+
+            showNotification(achievement) {
+                const notification = document.getElementById('achievementNotification');
+                const title = document.getElementById('achievementTitle');
+                const desc = document.getElementById('achievementDesc');
+
+                title.textContent = achievement.name;
+                desc.textContent = achievement.description;
+                notification.style.display = 'block';
+                notification.classList.add('show');
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 500);
+                }, 4000);
+            },
+
+            updateDisplay() {
+                const container = document.getElementById('achievementsList');
+                if (!container) return;
+
+                container.innerHTML = '';
+                
+                for (const [id, achievement] of Object.entries(this.definitions)) {
+                    if (achievement.secret && !gameState.achievements[id]) continue;
+
+                    const item = document.createElement('div');
+                    item.className = `achievement-item ${gameState.achievements[id] ? 'unlocked' : 'locked'}`;
+                    
+                    const unlocked = gameState.achievements[id];
+                    const unlockedDate = unlocked ? new Date(unlocked.unlockedAt).toLocaleDateString() : '';
+                    
+                    item.innerHTML = `
+                        <div style="font-size: 2rem;">${achievement.icon}</div>
+                        <div>
+                            <div style="font-weight: 700; margin-bottom: 5px;">${achievement.name}</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">${achievement.description}</div>
+                            ${unlocked ? `<div style="color: var(--success-color); font-size: 0.8rem; margin-top: 5px;">Unlocked ${unlockedDate}</div>` : ''}
+                        </div>
+                    `;
+                    
+                    container.appendChild(item);
+                }
+            },
+
+            getTotalPoints() {
+                return Object.keys(gameState.achievements).reduce((total, id) => {
+                    return total + (this.definitions[id]?.points || 0);
+                }, 0);
+            }
+        };
+
+        // Sound System
+        const soundSystem = {
+            context: null,
+            sounds: {},
+            
+            init() {
+                try {
+                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Web Audio API not supported');
+                }
+            },
+
+            createTone(frequency, duration, type = 'sine') {
+                if (!this.context || !gameState.settings.sfxEnabled) return;
+
+                const oscillator = this.context.createOscillator();
+                const gainNode = this.context.createGain();
+                const filter = this.context.createBiquadFilter();
+
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(this.context.destination);
+
+                oscillator.frequency.setValueAtTime(frequency, this.context.currentTime);
+                oscillator.type = type;
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, this.context.currentTime);
+
+                const volume = gameState.settings.masterVolume / 100 * 0.1;
+                gainNode.gain.setValueAtTime(0, this.context.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, this.context.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.context.currentTime + duration);
+
+                oscillator.start(this.context.currentTime);
+                oscillator.stop(this.context.currentTime + duration);
+            },
+
+            play(soundType) {
+                if (!gameState.settings.sfxEnabled) return;
+
+                switch (soundType) {
+                    case 'typing':
+                        const notes = [523.25, 587.33, 659.25, 698.46, 783.99];
+                        const randomNote = notes[Math.floor(Math.random() * notes.length)];
+                        this.createTone(randomNote, 0.1, 'triangle');
+                        break;
+                    case 'notification':
+                        this.createTone(800, 0.2);
+                        this.createTone(1000, 0.2);
+                        break;
+                    case 'achievement':
+                        this.createTone(523.25, 0.3);
+                        setTimeout(() => this.createTone(659.25, 0.3), 150);
+                        setTimeout(() => this.createTone(783.99, 0.5), 300);
+                        break;
+                    case 'error':
+                        this.createTone(200, 0.5, 'sawtooth');
+                        break;
+                    case 'success':
+                        this.createTone(523.25, 0.2);
+                        setTimeout(() => this.createTone(659.25, 0.2), 100);
+                        setTimeout(() => this.createTone(783.99, 0.4), 200);
+                        break;
+                    case 'anxiety':
+                        this.createTone(150 + Math.random() * 100, 0.1, 'sawtooth');
+                        break;
+                    case 'heartbeat':
+                        this.createTone(60, 0.05, 'sine');
+                        break;
+                }
+            }
+        };
+
+        // Haptic Feedback
+        function vibrateDevice(pattern = [100]) {
+            if (gameState.settings.hapticEnabled && navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Save/Load System
+        function saveProgress() {
+            if (!gameState.settings.autoSave) return;
+
+            const saveData = {
+                gameState: { ...gameState },
+                timestamp: Date.now(),
+                version: '2.0.0'
+            };
+
+            try {
+                localStorage.setItem('adhd-email-odyssey-save', JSON.stringify(saveData));
+                gameState.lastSave = Date.now();
+            } catch (e) {
+                console.warn('Failed to save progress:', e);
+            }
+        }
+
+        function loadProgress() {
+            try {
+                const saveData = localStorage.getItem('adhd-email-odyssey-save');
+                if (!saveData) return false;
+
+                const parsed = JSON.parse(saveData);
+                if (parsed.version !== '2.0.0') return false;
+
+                // Merge saved state with current state
+                Object.assign(gameState, parsed.gameState);
+                return true;
+            } catch (e) {
+                console.warn('Failed to load progress:', e);
+                return false;
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                localStorage.removeItem('adhd-email-odyssey-save');
+                location.reload();
+            }
+        }
+
+        // Error Handling
+        function handleError(error, context = 'unknown') {
+            console.error(`Error in ${context}:`, error);
+            
+            // Save progress immediately
+            saveProgress();
+            
+            // Show user-friendly error
+            const errorModal = document.getElementById('errorModal');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = `Something went wrong (${context}), but your progress is saved! The chaos continues...`;
+            errorModal.style.display = 'flex';
+            
+            // Track error for analytics (if implemented)
+            trackEvent('error', context, error.message);
+        }
+
+        function dismissError() {
+            document.getElementById('errorModal').style.display = 'none';
+        }
+
+        // Loading System
+        async function initializeGame() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loadingBar = document.getElementById('loadingBar');
+            const loadingText = document.getElementById('loadingText');
+            
+            const loadingSteps = [
+                { text: 'Initializing chaos...', duration: 300 },
+                { text: 'Loading anxiety generators...', duration: 500 },
+                { text: 'Preparing distractions...', duration: 400 },
+                { text: 'Calibrating executive dysfunction...', duration: 600 },
+                { text: 'Installing procrastination protocols...', duration: 500 },
+                { text: 'Loading save data...', duration: 300 },
+                { text: 'Ready for chaos!', duration: 200 }
+            ];
+
+            let progress = 0;
+            
+            for (let i = 0; i < loadingSteps.length; i++) {
+                const step = loadingSteps[i];
+                loadingText.textContent = step.text;
+                
+                // Simulate loading
+                await new Promise(resolve => setTimeout(resolve, step.duration));
+                
+                progress = ((i + 1) / loadingSteps.length) * 100;
+                loadingBar.style.width = progress + '%';
+
+                // Actual initialization steps
+                if (i === 0) soundSystem.init();
+                if (i === 2) createEntryParticles();
+                if (i === 5) loadProgress();
+            }
+
+            // Fade out loading screen
+            setTimeout(() => {
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    gameState.stage = 'narrator';
+                }, 1000);
+            }, 500);
+        }
+
+        // Settings System
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            updateSettingsDisplay();
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+            saveProgress();
+        }
+
+        function toggleSetting(setting) {
+            const toggle = document.getElementById(setting + 'Toggle');
+            const isActive = toggle.classList.contains('active');
+            
+            switch (setting) {
+                case 'sfx':
+                    gameState.settings.sfxEnabled = !isActive;
+                    break;
+                case 'music':
+                    gameState.settings.musicEnabled = !isActive;
+                    break;
+                case 'contrast':
+                    gameState.settings.highContrast = !isActive;
+                    document.body.classList.toggle('high-contrast', !isActive);
+                    break;
+                case 'motion':
+                    gameState.settings.reducedMotion = !isActive;
+                    document.body.style.setProperty('--animation-speed', !isActive ? '0.1s' : '1s');
+                    break;
+                case 'text':
+                    gameState.settings.largeText = !isActive;
+                    document.body.style.fontSize = !isActive ? '1.2em' : '1em';
+                    break;
+                case 'haptic':
+                    gameState.settings.hapticEnabled = !isActive;
+                    break;
+                case 'autosave':
+                    gameState.settings.autoSave = !isActive;
+                    break;
+            }
+            
+            toggle.classList.toggle('active');
+            soundSystem.play('notification');
+        }
+
+        function updateSettingsDisplay() {
+            // Update volume slider
+            document.getElementById('masterVolume').value = gameState.settings.masterVolume;
+            
+            // Update toggles
+            const settings = ['sfx', 'music', 'contrast', 'motion', 'text', 'haptic', 'autosave'];
+            settings.forEach(setting => {
+                const toggle = document.getElementById(setting + 'Toggle');
+                const key = setting === 'sfx' ? 'sfxEnabled' : 
+                           setting === 'music' ? 'musicEnabled' :
+                           setting === 'contrast' ? 'highContrast' :
+                           setting === 'motion' ? 'reducedMotion' :
+                           setting === 'text' ? 'largeText' :
+                           setting === 'haptic' ? 'hapticEnabled' :
+                           'autoSave';
+                
+                toggle.classList.toggle('active', gameState.settings[key]);
+            });
+        }
+
+        // Volume control
+        document.addEventListener('DOMContentLoaded', () => {
+            const volumeSlider = document.getElementById('masterVolume');
+            if (volumeSlider) {
+                volumeSlider.addEventListener('input', (e) => {
+                    gameState.settings.masterVolume = parseInt(e.target.value);
+                });
+            }
+        });
+
+        // Touch Gesture System
+        let touchStartY = 0;
+        let touchStartX = 0;
+
+        function enableSwipeGestures(element) {
+            element.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+
+            element.addEventListener('touchend', (e) => {
+                const touchEndY = e.changedTouches[0].clientY;
+                const touchEndX = e.changedTouches[0].clientX;
+                const deltaY = touchStartY - touchEndY;
+                const deltaX = touchStartX - touchEndX;
+
+                // Swipe up to dismiss (thought bubbles)
+                if (deltaY > 50 && Math.abs(deltaX) < 100) {
+                    if (element.classList.contains('thought-bubble')) {
+                        dismissThoughtBubble(element);
+                    }
+                }
+
+                // Swipe left/right for navigation
+                if (Math.abs(deltaX) > 100 && Math.abs(deltaY) < 50) {
+                    if (deltaX > 0) {
+                        // Swipe left
+                        console.log('Swipe left detected');
+                    } else {
+                        // Swipe right
+                        console.log('Swipe right detected');
+                    }
+                }
+            }, { passive: true });
+        }
+
+        function dismissThoughtBubble(bubble) {
+            bubble.classList.add('swipe-dismiss');
+            setTimeout(() => {
+                if (bubble.parentNode) {
+                    bubble.remove();
+                }
+            }, 300);
+
+            gameState.anxiety = Math.max(0, gameState.anxiety - 2);
+            gameState.stats.thoughtsDismissed++;
+            updateStats();
+            showNotification("Thought dismissed! +2 sanity points");
+            soundSystem.play('success');
+            vibrateDevice([50]);
+            achievementSystem.check();
+        }
+
+        // Game Mode System
+        function selectGameMode(mode) {
+            const modeCard = document.querySelector(`[data-mode="${mode}"]`);
+            if (modeCard.classList.contains('locked')) {
+                showNotification("This mode is locked! Complete previous modes to unlock.");
+                soundSystem.play('error');
+                return;
+            }
+
+            gameState.currentMode = mode;
+            
+            // Apply mode-specific settings
+            switch (mode) {
+                case 'easy':
+                    gameState.anxiety = 10;
+                    gameState.procrastination = 60;
+                    gameState.focus = 20;
+                    break;
+                case 'normal':
+                    gameState.anxiety = 20;
+                    gameState.procrastination = 85;
+                    gameState.focus = 10;
+                    break;
+                case 'hard':
+                    gameState.anxiety = 35;
+                    gameState.procrastination = 95;
+                    gameState.focus = 5;
+                    break;
+                case 'nightmare':
+                    gameState.anxiety = 50;
+                    gameState.procrastination = 100;
+                    gameState.focus = 0;
+                    break;
+                case 'daily':
+                    // Random stats based on day
+                    const seed = new Date().getDate();
+                    gameState.anxiety = 15 + (seed % 20);
+                    gameState.procrastination = 70 + (seed % 30);
+                    gameState.focus = 5 + (seed % 15);
+                    break;
+            }
+
+            // Set up scenario
+            gameState.scenario = contentSystems.getCurrentScenario();
+            
+            document.getElementById('modeSelection').style.display = 'none';
+            startNarratorExperience();
+            
+            trackEvent('game', 'mode_selected', mode);
+        }
+
+        // Social Sharing
+        function shareScore() {
+            const score = achievementSystem.getTotalPoints();
+            const shareText = `I survived the ADHD Email Odyssey! 📧\n\nFinal Stats:\n📝 ${gameState.drafts} drafts\n😰 ${gameState.stats.anxietyPeaks} anxiety peaks\n🏆 ${score} points\n\nCan you handle the chaos?`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ADHD Email Odyssey - My Chaos Score',
+                    text: shareText,
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                document.getElementById('shareModal').style.display = 'block';
+            }
+        }
+
+        function shareToTwitter() {
+            const score = achievementSystem.getTotalPoints();
+            const text = encodeURIComponent(`I survived the ADHD Email Odyssey! 📧 Score: ${score} points. Can you handle the chaos?`);
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        }
+
+        function copyShareText() {
+            const score = achievementSystem.getTotalPoints();
+            const shareText = `I survived the ADHD Email Odyssey! 📧 Score: ${score} points. Can you handle the chaos? ${window.location.href}`;
+            
+            navigator.clipboard.writeText(shareText).then(() => {
+                showNotification("Share text copied to clipboard!");
+                document.getElementById('shareModal').style.display = 'none';
+            }).catch(() => {
+                showNotification("Failed to copy. But hey, you tried!");
+            });
+        }
+
+        // Analytics (placeholder - replace with actual analytics service)
+        function trackEvent(category, action, label, value) {
+            // Example: Google Analytics 4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', action, {
+                    event_category: category,
+                    event_label: label,
+                    value: value
+                });
+            }
+            
+            // Console log for development
+            console.log(`Analytics: ${category}/${action}/${label}`, value);
+        }
+
+        // Easter Egg - Konami Code
+        let konamiCode = [];
+        const konamiSequence = [
+            'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+            'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+            'KeyB', 'KeyA'
         ];
 
-        let distractions = [
-            "🎵 New song just dropped!",
-            "📱 Someone liked your post!",
-            "🍕 You should probably eat something",
-            "🧹 Your room is a disaster zone",
-            "📺 That show you're watching has a new episode",
-            "💸 Check if that thing you wanted is on sale",
-            "🌐 Wikipedia rabbit hole awaits",
-            "🎮 Quick game break?",
-            "☕ Coffee sounds good right now",
-            "📖 Remember that book you started?",
-            "🚿 You should probably shower",
-            "📞 Text someone back",
-            "🗂️ Organize your desktop",
-            "🎨 Learn a new skill on YouTube",
-            "🌤️ Check the weather for no reason"
-        ];
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.code);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            
+            if (konamiCode.join(',') === konamiSequence.join(',')) {
+                activateDebugMode();
+            }
+        });
 
-        // Initialize particles for narrator entry
+        function activateDebugMode() {
+            gameState.konamiActivated = true;
+            document.getElementById('debugConsole').style.display = 'block';
+            showNotification("Debug mode activated! Type 'help' in console for commands.");
+            achievementSystem.check();
+            
+            // Add debug commands
+            window.debugCommands = {
+                help: () => console.log('Debug commands: stats, unlock, god, chaos, win'),
+                stats: () => console.log(gameState),
+                unlock: (id) => achievementSystem.unlock(id),
+                god: () => { gameState.anxiety = 0; gameState.focus = 100; updateStats(); },
+                chaos: () => { gameState.anxiety = 100; gameState.procrastination = 100; updateStats(); },
+                win: () => showFinalScene()
+            };
+        }
+
+        // Control Panel Functions
+        function toggleAchievements() {
+            const panel = document.getElementById('achievementsPanel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                achievementSystem.updateDisplay();
+            }
+        }
+
+        function toggleSound() {
+            gameState.settings.sfxEnabled = !gameState.settings.sfxEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = gameState.settings.sfxEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('active', gameState.settings.sfxEnabled);
+            soundSystem.play('notification');
+        }
+
+        function showHelp() {
+            const helpContent = `
+            <h3>How to Survive the Email Odyssey</h3>
+            <p><strong>Goal:</strong> Send one email. Sounds simple? Your ADHD brain disagrees.</p>
+            <p><strong>Stats:</strong></p>
+            <ul>
+                <li>😰 <strong>Anxiety:</strong> Increases with overthinking, decreases with coping</li>
+                <li>⏰ <strong>Procrastination:</strong> Goes up when you get distracted</li>
+                <li>🧠 <strong>Dopamine:</strong> Reward chemical, get it from completing tasks</li>
+                <li>🎯 <strong>Focus:</strong> Your ability to stay on task</li>
+            </ul>
+            <p><strong>Tips:</strong></p>
+            <ul>
+                <li>Click thought bubbles to dismiss them</li>
+                <li>Swipe up on mobile to dismiss thoughts</li>
+                <li>Distractions give dopamine but hurt focus</li>
+                <li>Different game modes offer different challenges</li>
+                <li>Your progress auto-saves</li>
+            </ul>
+            <p><strong>Remember:</strong> This is a simulation. Real ADHD is complex and everyone's experience is different. This game is made with love for the neurodivergent community. 💙</p>
+            `;
+            
+            showModal('help', helpContent);
+        }
+
+        // Core Game Functions (Updated with new systems)
         function createEntryParticles() {
             const narratorEntry = document.getElementById('narratorEntry');
             
@@ -1545,7 +3057,6 @@
             }
         }
 
-        // Mobile HUD controls
         function toggleHUD() {
             const hud = document.getElementById('gameHud');
             const toggle = document.getElementById('hudToggle');
@@ -1563,7 +3074,6 @@
             }
         }
 
-        // Check if mobile and auto-collapse HUD
         function checkMobileHUD() {
             if (window.innerWidth <= 768) {
                 gameState.hudCollapsed = true;
@@ -1575,58 +3085,57 @@
             }
         }
 
-        // Narrator entry interaction
         function startNarratorExperience() {
             const narratorEntry = document.getElementById('narratorEntry');
             const orientationModal = document.getElementById('orientationModal');
             
-            // Fade out narrator entry
             narratorEntry.classList.add('fade-out');
             
-            // Show orientation modal
             setTimeout(() => {
                 narratorEntry.style.display = 'none';
                 orientationModal.style.display = 'flex';
             }, 2000);
         }
 
-        // Accept quest and start game
         function acceptQuest() {
             const orientationModal = document.getElementById('orientationModal');
             const gameScreen = document.getElementById('gameScreen');
             const gameHud = document.getElementById('gameHud');
             const missionBanner = document.getElementById('missionBanner');
             
-            // Hide orientation modal
             orientationModal.style.display = 'none';
-            
-            // Show game elements
             gameScreen.style.display = 'block';
             gameHud.style.display = 'flex';
             missionBanner.style.display = 'block';
             
             gameState.stage = 'writing';
+            gameState.sessionStart = Date.now();
             
-            // Check mobile and setup HUD
             checkMobileHUD();
             
-            // Show mission banner and fade it out after 10 seconds
             setTimeout(() => {
                 missionBanner.classList.add('fade-out');
             }, 10000);
             
-            // Show initial choices after a moment
             setTimeout(() => {
                 showChoices();
             }, 2000);
             
-            // Start the chaos
             setTimeout(spawnThoughtBubble, 3000);
             setTimeout(spawnDistraction, 8000);
             enableWriting();
+            
+            trackEvent('game', 'quest_accepted', gameState.currentMode);
         }
 
         function updateStats() {
+            // Clamp values
+            gameState.anxiety = Math.max(0, Math.min(100, gameState.anxiety));
+            gameState.procrastination = Math.max(0, Math.min(100, gameState.procrastination));
+            gameState.dopamine = Math.max(0, Math.min(100, gameState.dopamine));
+            gameState.focus = Math.max(0, Math.min(100, gameState.focus));
+            gameState.heartRate = Math.max(60, Math.min(180, gameState.heartRate));
+
             // Update visual bars
             document.getElementById('anxietyBar').style.width = gameState.anxiety + '%';
             document.getElementById('procrastinationBar').style.width = gameState.procrastination + '%';
@@ -1634,32 +3143,35 @@
             document.getElementById('focusBar').style.width = gameState.focus + '%';
             
             // Update heart rate
-            document.getElementById('heartRate').textContent = gameState.heartRate;
+            document.getElementById('heartRate').textContent = Math.round(gameState.heartRate);
             
             // Update draft count
             document.getElementById('draftCount').textContent = gameState.drafts;
+
+            // Track stats for achievements
+            if (gameState.anxiety > (gameState.stats.maxAnxiety || 0)) {
+                gameState.stats.maxAnxiety = gameState.anxiety;
+            }
+            
+            if (gameState.anxiety >= 90) {
+                gameState.stats.anxietyPeaks++;
+            }
+
+            // Screen reader announcements
+            announceToScreenReader(`Anxiety: ${gameState.anxiety}%, Focus: ${gameState.focus}%`);
+            
+            achievementSystem.check();
         }
 
-        function startGame() {
-            document.getElementById('titleScreen').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'block';
-            document.getElementById('gameHud').style.display = 'flex';
-            
-            gameState.stage = 'writing';
-            
-            // Show initial choices after a moment
-            setTimeout(() => {
-                showChoices();
-            }, 2000);
-            
-            // Start the chaos
-            setTimeout(spawnThoughtBubble, 3000);
-            setTimeout(spawnDistraction, 8000);
-            enableWriting();
+        function announceToScreenReader(message) {
+            const announcements = document.getElementById('srAnnouncements');
+            if (announcements) {
+                announcements.textContent = message;
+            }
         }
 
         function showChoices() {
-            if (!gameState.choicesVisible) {
+            if (!gameState.choicesVisible && gameState.stage === 'writing') {
                 document.getElementById('choiceOverlay').classList.add('active');
                 gameState.choicesVisible = true;
             }
@@ -1671,60 +3183,73 @@
         }
 
         function spawnThoughtBubble() {
-            if (gameState.stage !== 'writing' || gameState.thoughtCount > 15) return;
+            if (gameState.stage !== 'writing' || gameState.thoughtCount > getMaxThoughts()) return;
             
+            const thoughts = [...contentSystems.thoughtBubbles, ...contentSystems.getSeasonalContent()];
             const bubble = document.createElement('div');
             bubble.className = 'thought-bubble';
-            bubble.textContent = thoughtBubbles[Math.floor(Math.random() * thoughtBubbles.length)];
+            bubble.textContent = thoughts[Math.floor(Math.random() * thoughts.length)];
             
             // Random position (avoid HUD area)
-            bubble.style.left = Math.random() * (window.innerWidth - 250) + 'px';
+            bubble.style.left = Math.random() * (window.innerWidth - 280) + 'px';
             bubble.style.top = Math.random() * (window.innerHeight - 200) + 100 + 'px';
             
-            bubble.onclick = () => {
-                bubble.remove();
-                gameState.anxiety = Math.max(0, gameState.anxiety - 2);
-                updateStats();
-                showNotification("Thought dismissed! +2 sanity points");
-            };
+            // Enable swipe gestures
+            enableSwipeGestures(bubble);
+            
+            bubble.onclick = () => dismissThoughtBubble(bubble);
             
             document.body.appendChild(bubble);
             gameState.thoughtCount++;
             
-            // Increase anxiety
-            gameState.anxiety = Math.min(100, gameState.anxiety + 3);
-            gameState.heartRate = Math.min(120, gameState.heartRate + 1);
+            // Mode-specific anxiety increase
+            const anxietyIncrease = getModeMultiplier('anxiety') * 3;
+            gameState.anxiety = Math.min(100, gameState.anxiety + anxietyIncrease);
+            gameState.heartRate = Math.min(180, gameState.heartRate + 1);
             updateStats();
             
-            // Remove after 4 seconds
+            // Remove after time
             setTimeout(() => {
                 if (bubble.parentNode) {
                     bubble.remove();
                 }
-            }, 4000);
+            }, getThoughtDuration());
             
             // Spawn next bubble
-            setTimeout(spawnThoughtBubble, Math.random() * 4000 + 3000);
+            const nextDelay = getThoughtSpawnDelay();
+            setTimeout(spawnThoughtBubble, nextDelay);
         }
 
         function spawnDistraction() {
-            if (gameState.stage !== 'writing' || gameState.distractionCount > 10) return;
+            if (gameState.stage !== 'writing' || gameState.distractionCount > getMaxDistractions()) return;
             
             const distraction = document.createElement('div');
             distraction.className = 'distraction';
-            distraction.textContent = distractions[Math.floor(Math.random() * distractions.length)];
+            distraction.textContent = contentSystems.distractions[Math.floor(Math.random() * contentSystems.distractions.length)];
             
             distraction.style.left = Math.random() * (window.innerWidth - 250) + 'px';
             distraction.style.top = Math.random() * 300 + 100 + 'px';
             
+            // Enable swipe gestures
+            enableSwipeGestures(distraction);
+            
             distraction.onclick = () => {
-                gameState.procrastination = Math.min(100, gameState.procrastination + 8);
-                gameState.focus = Math.max(0, gameState.focus - 12);
+                const procrastinationIncrease = getModeMultiplier('procrastination') * 8;
+                const focusDecrease = getModeMultiplier('focus') * 12;
+                
+                gameState.procrastination = Math.min(100, gameState.procrastination + procrastinationIncrease);
+                gameState.focus = Math.max(0, gameState.focus - focusDecrease);
                 gameState.dopamine = Math.min(100, gameState.dopamine + 5);
+                gameState.stats.distractionsClicked++;
+                
                 updateStats();
                 
                 showNotification("Distraction successful! Wait, what were you doing again?");
+                soundSystem.play('notification');
+                vibrateDevice([100, 50, 100]);
                 distraction.remove();
+                
+                achievementSystem.check();
             };
             
             document.body.appendChild(distraction);
@@ -1736,7 +3261,44 @@
                 }
             }, 10000);
             
-            setTimeout(spawnDistraction, Math.random() * 12000 + 8000);
+            setTimeout(spawnDistraction, getDistractionSpawnDelay());
+        }
+
+        // Mode-specific difficulty adjustments
+        function getModeMultiplier(type) {
+            const multipliers = {
+                'easy': { anxiety: 0.5, procrastination: 0.7, focus: 1.2 },
+                'normal': { anxiety: 1, procrastination: 1, focus: 1 },
+                'hard': { anxiety: 1.5, procrastination: 1.3, focus: 0.8 },
+                'nightmare': { anxiety: 2, procrastination: 1.5, focus: 0.5 }
+            };
+            
+            return multipliers[gameState.currentMode]?.[type] || 1;
+        }
+
+        function getMaxThoughts() {
+            const maxes = { 'easy': 8, 'normal': 15, 'hard': 25, 'nightmare': 40 };
+            return maxes[gameState.currentMode] || 15;
+        }
+
+        function getMaxDistractions() {
+            const maxes = { 'easy': 5, 'normal': 10, 'hard': 18, 'nightmare': 30 };
+            return maxes[gameState.currentMode] || 10;
+        }
+
+        function getThoughtDuration() {
+            const durations = { 'easy': 6000, 'normal': 4000, 'hard': 3000, 'nightmare': 2000 };
+            return durations[gameState.currentMode] || 4000;
+        }
+
+        function getThoughtSpawnDelay() {
+            const delays = { 'easy': 8000, 'normal': 5000, 'hard': 3000, 'nightmare': 2000 };
+            return Math.random() * delays[gameState.currentMode] + 2000;
+        }
+
+        function getDistractionSpawnDelay() {
+            const delays = { 'easy': 15000, 'normal': 10000, 'hard': 7000, 'nightmare': 4000 };
+            return Math.random() * delays[gameState.currentMode] + 5000;
         }
 
         function makeChoice(choice) {
@@ -1744,7 +3306,7 @@
             
             switch(choice) {
                 case 'overthink':
-                    gameState.anxiety += 15;
+                    gameState.anxiety += 15 * getModeMultiplier('anxiety');
                     gameState.procrastination += 12;
                     gameState.focus -= 8;
                     showModal('overthink');
@@ -1757,7 +3319,7 @@
                     setTimeout(showChoices, 3000);
                     break;
                 case 'anxiety':
-                    gameState.anxiety += 25;
+                    gameState.anxiety += 25 * getModeMultiplier('anxiety');
                     gameState.heartRate += 15;
                     showModal('anxiety');
                     break;
@@ -1769,15 +3331,24 @@
                     setTimeout(showChoices, 2000);
                     break;
             }
+            
             updateStats();
+            soundSystem.play('notification');
+            trackEvent('game', 'choice_made', choice);
         }
 
-        function showModal(type) {
+        function showModal(type, customContent = null) {
             const overlay = document.getElementById('modalOverlay');
             const title = document.getElementById('modalTitle');
             const content = document.getElementById('modalContent');
             
             overlay.style.display = 'flex';
+            
+            if (customContent) {
+                title.textContent = 'Help';
+                content.innerHTML = customContent + '<button class="modal-btn" onclick="closeModal()">Got it!</button>';
+                return;
+            }
             
             if (type === 'anxiety') {
                 title.textContent = 'Anxiety Spiral Detected!';
@@ -1802,6 +3373,10 @@
             }
         }
 
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
         function cope(method) {
             const overlay = document.getElementById('modalOverlay');
             overlay.style.display = 'none';
@@ -1811,6 +3386,7 @@
                     gameState.anxiety = Math.max(0, gameState.anxiety - 12);
                     gameState.focus += 8;
                     showNotification("Deep breaths... You can do this. Probably. Maybe.");
+                    soundSystem.play('success');
                     break;
                 case 'distract':
                     gameState.dopamine += 12;
@@ -1821,6 +3397,8 @@
                     gameState.anxiety += 15;
                     gameState.heartRate += 12;
                     showNotification("You chose chaos. We respect the commitment.");
+                    soundSystem.play('anxiety');
+                    vibrateDevice([200, 100, 200]);
                     break;
                 case 'commit':
                     gameState.focus += 15;
@@ -1830,6 +3408,7 @@
                         document.getElementById('emailBody').value = "Hi Sarah,\n\n" + currentText;
                     }
                     showNotification("Progress! You're basically a communication expert now.");
+                    soundSystem.play('success');
                     break;
                 case 'research':
                     gameState.procrastination += 25;
@@ -1837,8 +3416,8 @@
                     showNotification("4 hours later: You're now fluent in 18th-century epistolary etiquette.");
                     break;
             }
-            updateStats();
             
+            updateStats();
             setTimeout(showChoices, 2000);
         }
 
@@ -1868,7 +3447,16 @@
                 if (this.value.length > 5) {
                     hideChoices();
                 }
+
+                // Play typing sound
+                if (Math.random() < 0.3) { // Don't play on every keystroke
+                    soundSystem.play('typing');
+                }
             });
+
+            // Enable spellcheck and accessibility
+            emailBody.setAttribute('spellcheck', 'true');
+            emailBody.setAttribute('aria-describedby', 'emailHelp');
         }
 
         function attemptSend() {
@@ -1876,12 +3464,16 @@
             
             if (emailContent.length < 15) {
                 showNotification("Error: Email too short. Your brain demands more overthinking.");
+                soundSystem.play('error');
                 return;
             }
             
+            // Calculate session time for speed achievement
+            gameState.sessionPlayTime = Date.now() - gameState.sessionStart;
+            
             // Dramatic send sequence
             gameState.anxiety = 100;
-            gameState.heartRate = 120;
+            gameState.heartRate = 150;
             hideChoices();
             updateStats();
             
@@ -1890,32 +3482,53 @@
             sendButton.classList.add('sending');
             sendButton.disabled = true;
             
+            // Intense heartbeat and vibration
+            soundSystem.play('heartbeat');
+            vibrateDevice([300, 100, 300, 100, 300]);
+            
             // Simulate sending delay with increasing anxiety
             let countdown = 3;
             const countdownInterval = setInterval(() => {
                 sendButton.textContent = `SENDING... ${countdown}`;
                 countdown--;
+                soundSystem.play('heartbeat');
+                
                 if (countdown < 0) {
                     clearInterval(countdownInterval);
+                    gameState.emailSent = true;
+                    gameState.stats.emailsSent++;
+                    gameState.stats.modesCompleted.push(gameState.currentMode);
+                    
+                    soundSystem.play('success');
+                    vibrateDevice([100, 50, 100, 50, 100, 50, 200]);
+                    
+                    achievementSystem.check();
                     showFinalScene();
+                    
+                    trackEvent('game', 'email_sent', gameState.currentMode, gameState.sessionPlayTime);
                 }
             }, 1000);
         }
 
         function showFinalScene() {
             const gameScreen = document.getElementById('gameScreen');
+            const totalScore = achievementSystem.getTotalPoints();
+            const playTime = Math.round((Date.now() - gameState.sessionStart) / 1000);
+            
             gameScreen.innerHTML = `
                 <div class="victory-screen">
                     <h1>🎉 EMAIL SENT! 🎉</h1>
                     <h3>Achievement Unlocked: Email Warrior</h3>
-                    <p style="font-size: 1.2rem; margin: 20px 0;">After 3 weeks, 2 mental breakdowns, and 1 dissociative nap...</p>
+                    <p style="font-size: 1.2rem; margin: 20px 0;">After all that chaos, you actually did it!</p>
                     
                     <div class="stats-display">
                         <strong>🏆 Final Battle Stats:</strong><br><br>
                         📝 Total drafts: ${gameState.drafts}<br>
-                        😰 Anxiety peaks: ${gameState.thoughtCount}<br>
-                        📱 Distractions survived: ${gameState.distractionCount}<br>
-                        ⏰ Time to send: 3 weeks, 2 days, 14 hours<br>
+                        😰 Anxiety peaks: ${gameState.stats.anxietyPeaks}<br>
+                        📱 Distractions clicked: ${gameState.stats.distractionsClicked}<br>
+                        ⏰ Time to send: ${Math.floor(playTime / 60)}m ${playTime % 60}s<br>
+                        🎯 Mode completed: ${gameState.currentMode}<br>
+                        🏆 Total score: ${totalScore} points<br>
                         🧠 Mental health: Questionable but intact<br>
                         💪 Executive function: Still broken, but we persevered
                     </div>
@@ -1923,7 +3536,8 @@
                     <h2 style="margin: 30px 0;">"You survived the ADHD email odyssey. Your executive function may be broken, but your spirit is unbreakable."</h2>
                     
                     <button class="start-btn" onclick="showBonus()" style="margin: 10px;">Show Bonus Scene</button>
-                    <button class="start-btn" onclick="location.reload()" style="margin: 10px;">Play Again (Masochist Mode)</button>
+                    <button class="start-btn" onclick="shareScore()" style="margin: 10px;">📱 Share Your Chaos</button>
+                    <button class="start-btn" onclick="document.getElementById('modeSelection').style.display='flex'; document.getElementById('gameScreen').style.display='none';" style="margin: 10px;">🔄 Play Again</button>
                 </div>
             `;
         }
@@ -1958,7 +3572,7 @@
                         ...right?<br><br>
                         <em>*nervous laughter intensifies*</em>
                     </p>
-                    <button class="start-btn" onclick="location.reload()" style="margin-top: 30px;">
+                    <button class="start-btn" onclick="document.getElementById('modeSelection').style.display='flex'; document.getElementById('gameScreen').style.display='none';" style="margin-top: 30px;">
                         Start Your Next Email Adventure
                     </button>
                 </div>
@@ -1979,39 +3593,60 @@
         }
 
         // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
-            createEntryParticles();
-            updateStats();
-            
-            // Entry screen click handler
-            const narratorEntry = document.getElementById('narratorEntry');
-            const emailCrystal = document.getElementById('emailCrystal');
-            
-            // Add click handlers
-            narratorEntry.addEventListener('click', startNarratorExperience);
-            emailCrystal.addEventListener('click', function(e) {
-                e.stopPropagation();
-                startNarratorExperience();
-            });
-            
-            // Add touch handlers for mobile
-            narratorEntry.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                startNarratorExperience();
-            });
-            
-            // Window resize handler for mobile HUD
-            window.addEventListener('resize', checkMobileHUD);
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Start loading sequence
+                await initializeGame();
+                
+                // Set up event listeners
+                const narratorEntry = document.getElementById('narratorEntry');
+                const emailCrystal = document.getElementById('emailCrystal');
+                
+                narratorEntry.addEventListener('click', startNarratorExperience);
+                emailCrystal.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    startNarratorExperience();
+                });
+                
+                // Touch handlers for mobile
+                narratorEntry.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startNarratorExperience();
+                });
+                
+                // Window resize handler
+                window.addEventListener('resize', checkMobileHUD);
+                
+                // PWA install prompt
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    // Show install button if desired
+                });
+                
+                // Initialize accessibility
+                announceToScreenReader("ADHD Email Odyssey loaded. Game ready to start.");
+                
+            } catch (error) {
+                handleError(error, 'initialization');
+            }
         });
         
-        // Random heart rate fluctuations
+        // Auto-save system
         setInterval(() => {
             if (gameState.stage === 'writing') {
+                saveProgress();
+                
+                // Random heart rate fluctuations
                 gameState.heartRate += Math.random() * 3 - 1.5;
-                gameState.heartRate = Math.max(65, Math.min(125, gameState.heartRate));
+                gameState.heartRate = Math.max(60, Math.min(180, gameState.heartRate));
                 updateStats();
+                
+                // Track play time
+                gameState.stats.totalPlayTime += 5000; // 5 seconds
             }
-        }, 2000);
+        }, 5000);
 
         // Prevent accidental page navigation
         window.addEventListener('beforeunload', function(e) {
@@ -2020,6 +3655,31 @@
                 e.returnValue = 'Are you sure you want to leave? Your email draft will be lost forever! (Just like all the others...)';
             }
         });
+
+        // Handle visibility change for audio context
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && soundSystem.context) {
+                soundSystem.context.suspend();
+            } else if (!document.hidden && soundSystem.context) {
+                soundSystem.context.resume();
+            }
+        });
+
+        // Global error handler
+        window.addEventListener('error', (e) => {
+            handleError(e.error, 'global');
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            handleError(e.reason, 'promise');
+        });
+
+        // Export for testing/debugging
+        if (typeof window !== 'undefined') {
+            window.gameState = gameState;
+            window.achievementSystem = achievementSystem;
+            window.soundSystem = soundSystem;
+        }
     </script>
 </body>
 </html>
